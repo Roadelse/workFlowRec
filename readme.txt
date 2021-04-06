@@ -9,6 +9,10 @@ readme
     ●  还得记录所处的相对路径, 这样就不用记录cd了...
 
 使用
-wf cat/head/tail 进行灵活查看内容
-wf new/new2 进行创建workFlow.rec或.workFlow.rec
-wf cnacel 取消上一步的记录
+
+wf 
+    -n 1/2 创建workFlow.rec, 2为隐藏的
+    -s cat/head/tail 查看workFlow.rec
+    -c 取消上次的记录
+    -e commands 记录并执行命令
+    -r sentennce 仅记录, 不执行

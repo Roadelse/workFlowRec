@@ -4,6 +4,50 @@ user=`whoami`
 curDir=`pwd`
 tarDir=$curDir
 
+
+exec_mode=0
+record_mode=0
+cancel_mode=0
+show_mode=0
+new_mode=0
+while getopts "rces:n:" arg
+do
+    case $arg in 
+        e)
+            exec_mode=1;;
+        r)
+            record_mode=1;;
+        c)
+            cancel_mode=1;;
+        s)
+            show_mode=1
+            show_opt=$OPTARG;;
+        n)
+            new_mode=1
+            new_opt=$OPTARG;;
+    esac
+done
+
+sum_modes=`echo "$exec_mode + $record_mode + $cancel_mode + $show_mode + $new_mode " | bc`
+if [[ $sum_modes == 0 ]]; then
+    loc_mode=1
+elif [[ $sum_modes -gt 1 ]]; then
+    echo "rcsne can not occur more than one simultaneously!"
+    exit 1
+fi
+
+# >>>>> new mode
+if [[ $new_mode == 1 ]]; then
+    if [[ $new_opt == 1 ]]; then
+        touch workFlow.rec
+    else
+        touch .workFlow.rec
+    fi
+    exit 0
+fi
+
+# >>>>> check wf file
+
 wf_file=
 
 while [[ $tarDir != "/" ]]
@@ -20,48 +64,39 @@ do
     fi
 done
 
-if [[ $# == 1 && $1 == new ]]; then
-    touch workFlow.rec
-    exit 0
-elif [[ $# == 1 && $1 == new2 ]]; then
-    touch .workFlow.rec
+if [[ -z $wf_file ]]; then
+    echo "cannot find workFlow.rec or .workFlow.rec with w authority in all parent directories"
+    exit 1
+fi
+
+# >>>>> loc mode
+if [[ $loc_mode == 1 ]]; then
+    echo $wf_file
     exit 0
 fi
 
-
-if [[ -z $wf_file ]]; then
-    if [[ $# == 0 ]]; then
-        echo "cannot find workFlow.rec or .workFlow.rec with w authority in all parent directories"
-        exit 1
-    else
-        echo "unknown parameters"
-        exit 1
-    fi
-else
-    if [[ $# == 0 ]]; then
-        echo "$wf_file"
-        exit 0
-    fi
-    if [[ $# == 1 && $1 == cat ]]; then
+# >>>>> show mode
+if [[ $show_mode == 1 ]]; then
+    if [[ $show_opt == cat ]]; then
         cat $wf_file
-        exit 0
-    fi
-    if [[ $# == 1 && $1 == head ]]; then
+    elif [[ $show_opt == head ]]; then
         head $wf_file
-        exit 0
-    fi
-    if [[ $# == 1 && $1 == tail ]]; then
+    elif [[ $show_opt == tail ]]; then
         tail $wf_file
-        exit 0
     fi
-    if [[ $# == 1 && $1 == cancel ]]; then
-        nlines=`wc -l $wf_file  | awk '{print $1}'`
-        (( lcs = nlines - 3 )) # line cancel start
-        # echo nlines = $nlines
-        # echo lcs=$lcs
-        sed -i "${lcs},${nlines}d" $wf_file
-        exit 0
-    fi
+    exit 0
+fi
+
+# >>>>> cancel mode
+if [[ $cancel_mode == 1 ]]; then
+    nlines=`wc -l $wf_file  | awk '{print $1}'`
+    (( lcs = nlines - 3 )) # line cancel start
+    sed -i "${lcs},${nlines}d" $wf_file
+    exit 0
+fi
+
+# >>>>> exec/record mode
+if [[ $record_mode == 1 || $exec_mode == 1 ]]; then
     if [[ $curDir == $tarDir ]]; then
         relDir="."
     else
@@ -70,11 +105,15 @@ else
     fi
     echo `date +"%Y-%m-%d %H:%M:%S"` >> $wf_file
     echo "At $relDir" >> $wf_file
-    echo "$*" >> $wf_file
-    echo "" >> $wf_file
-    if [[ $1 != "-ro" ]]; then
-        $*
+    
+    if [[ $exec_mode == 1 ]]; then
+        echo "${*:2}" >> $wf_file
+        ${*:2}
+    else
+        echo "$*" >> $wf_file
     fi
+    echo "" >> $wf_file
+    exit 0
 fi
 
 
