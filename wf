@@ -1,0 +1,40 @@
+#!/bin/bash
+
+user=`whoami`
+curDir=`pwd`
+tarDir=$curDir
+
+wf_file=
+
+while [[ $tarDir != "/" ]]
+do
+    if [[ -e $tarDir/workFlow.rec && `test -w $tarDir/workFlow.rec && echo ok || echo fail` == ok ]]; then
+        wf_file=$tarDir/workFlow.rec
+        break
+    elif [[ -e $tarDir/.workFlow.rec && `test -w $tarDir/.workFlow.rec && echo ok || echo fail` == ok ]]; then
+        wf_file=$tarDir/.workFlow.rec
+        break
+    else
+        tarDir=`dirname $tarDir`
+        continue
+    fi
+done
+
+if [[ -z $wf_file ]]; then
+    echo "cannot find workFlow.rec or .workFlow.rec with w authority in all parent directories"
+    exit 1
+else
+    if [[ $curDir == $tarDir ]]; then
+        relDir="."
+    else
+        relDirT=${curDir/$tarDir}
+        relDir=${relDirT:1}
+    fi
+    echo `date +"%Y-%m-%d %H:%M:%S"` >> $wf_file
+    echo "At $relDir" >> $wf_file
+    echo "$*" >> $wf_file
+    echo "" >> $wf_file
+    $*
+fi
+
+
