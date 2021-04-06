@@ -20,10 +20,48 @@ do
     fi
 done
 
+if [[ $# == 1 && $1 == new ]]; then
+    touch workFlow.rec
+    exit 0
+elif [[ $# == 1 && $1 == new2 ]]; then
+    touch .workFlow.rec
+    exit 0
+fi
+
+
 if [[ -z $wf_file ]]; then
-    echo "cannot find workFlow.rec or .workFlow.rec with w authority in all parent directories"
-    exit 1
+    if [[ $# == 0 ]]; then
+        echo "cannot find workFlow.rec or .workFlow.rec with w authority in all parent directories"
+        exit 1
+    else
+        echo "unknown parameters"
+        exit 1
+    fi
 else
+    if [[ $# == 0 ]]; then
+        echo "$wf_file"
+        exit 0
+    fi
+    if [[ $# == 1 && $1 == cat ]]; then
+        cat $wf_file
+        exit 0
+    fi
+    if [[ $# == 1 && $1 == head ]]; then
+        head $wf_file
+        exit 0
+    fi
+    if [[ $# == 1 && $1 == tail ]]; then
+        tail $wf_file
+        exit 0
+    fi
+    if [[ $# == 1 && $1 == cancel ]]; then
+        nlines=`wc -l $wf_file  | awk '{print $1}'`
+        (( lcs = nlines - 3 )) # line cancel start
+        # echo nlines = $nlines
+        # echo lcs=$lcs
+        sed -i "${lcs},${nlines}d" $wf_file
+        exit 0
+    fi
     if [[ $curDir == $tarDir ]]; then
         relDir="."
     else
@@ -34,7 +72,9 @@ else
     echo "At $relDir" >> $wf_file
     echo "$*" >> $wf_file
     echo "" >> $wf_file
-    $*
+    if [[ $1 != "-ro" ]]; then
+        $*
+    fi
 fi
 
 
