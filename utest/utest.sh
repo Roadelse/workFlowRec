@@ -28,6 +28,7 @@ teardown_file() {
     cd $utestdir
     which wf
     [[ -e workflow.md ]]
+    . wf unload
     wf_path=$(wf)
     [[ $wf_path == "$utestdir/workflow.md" ]]
 }
@@ -39,6 +40,16 @@ teardown_file() {
     . wf
     wf_exec ls
     [[ "$(tail -n 1 workflow.md)" == "+ ls" ]]
+    . wf unload
+}
+
+@test "wf_say" {
+    cd $utestdir
+    which wf
+    [[ -e workflow.md ]]
+    . wf
+    wf_say hello
+    [[ "$(tail -n 1 workflow.md)" == "+ do: hello" ]]
     . wf unload
 }
 
