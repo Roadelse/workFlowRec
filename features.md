@@ -10,11 +10,11 @@
 
 ## Done
 
-### v24.3.28
+### v24.3
++ (√) wf:UPDATE | 添加`wf_pexec`函数, 还是需要的, `wf_exec`对应简化
++ (√) wf:BUGFIX | 之前wf_exec都是`$1`不合理, 改成`$*`
 + (√) wf:UPDATE | 添加`wf_say`函数, 及不执行, 仅描述做了啥操作, 起补充描述作用
 + (√) utest:BUGFIX | 修正了在已经load wf的情况下utest在location用例下错误的问题, 因为检出了额外的状态信息, 加个unload即可
-
-### v24.3.26
 + (√) rebuild:基于函数式改编, 不然rec mode没办法访问history, 奶奶的
 + (√) 优化自动记录模式逻辑, 支持全记录-ignore模式与仅记录特定命令模式, 例如句尾加个";"
 + (deprecated) 优化指令, `-r`模式现在改为从history里寻找匹配到的模式记录下来

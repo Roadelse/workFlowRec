@@ -194,29 +194,33 @@ function wf_cancel() {
 
 #@ .wf_exec
 function wf_exec() {
+    wf_exec "$*"
+    ${*:1}
+}
+
+#@ .wf_exec
+function wf_pexec() {
     relpath=$(realpath --relative-to=$tarDir $PWD)
     last_relpath=$(grep -Po '^At \*\*\K(.*)(?=\*\*)' $wf_file | tail -n 1)
 
     if [[ $last_relpath == $relpath ]]; then
-        echo -e "+ $1" >>$wf_file
+        echo -e "+ $*" >>$wf_file
     else
         nowDT=$(date '+%Y-%m-%d %H:%M:%S')
-        echo -e "***\nAt **${relpath}** *@${nowDT}*\n+ $1" >>$wf_file
+        echo -e "***\nAt **${relpath}** *@${nowDT}*\n+ $*" >>$wf_file
     fi
-
-    $1
 }
 
-#@ .wf_exec
+#@ .wf_say
 function wf_say() {
     relpath=$(realpath --relative-to=$tarDir $PWD)
     last_relpath=$(grep -Po '^At \*\*\K(.*)(?=\*\*)' $wf_file | tail -n 1)
 
     if [[ $last_relpath == $relpath ]]; then
-        echo -e "+ do: $1" >>$wf_file
+        echo -e "+ do: $*" >>$wf_file
     else
         nowDT=$(date '+%Y-%m-%d %H:%M:%S')
-        echo -e "***\nAt **${relpath}** *@${nowDT}*\n+ do: $1" >>$wf_file
+        echo -e "***\nAt **${relpath}** *@${nowDT}*\n+ do: $*" >>$wf_file
     fi
 }
 
